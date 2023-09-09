@@ -1,4 +1,5 @@
 import bun from "bun";
+import { watch } from "fs";
 
 console.log("Hello via Bun!");
 
@@ -22,4 +23,15 @@ const runAFile = async () => {
   console.log("output", JSON.parse(output));
 };
 
-runAFile();
+const watchBFile = async () => {
+  const path = `${import.meta.dir}/file/b.txt`
+  const watcher = watch(path, async (event, filename) => {
+    console.log(`Detected ${event} in ${filename}`);
+    const file = Bun.file(path)
+    const txt = await file.text();
+    console.log(txt);
+  });
+};
+
+// runAFile();
+watchBFile();
