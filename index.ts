@@ -85,7 +85,9 @@ const runSQLiteJsonColumnWithFile = async () => {
   //     "CREATE TABLE IF NOT EXISTS table2 (id INTEGER PRIMARY KEY, data JSON)"
   //   );
   //   db.exec("INSERT INTO table2 (data) VALUES (?)", [jsonData]);
-  const result = db.query<Table2, SQLQueryBindings | SQLQueryBindings[]>("SELECT * FROM table2");
+  const result = db.query<Table2, SQLQueryBindings | SQLQueryBindings[]>(
+    "SELECT * FROM table2"
+  );
   //   console.log(result.all());
   result.all().forEach((row) => {
     console.log(JSON.parse(row.data));
@@ -109,10 +111,25 @@ const runSQLiteInMemory2 = async () => {
   console.log(result.get());
 };
 
+const runRunCodeStringFromFile = async () => {
+  const transpile = new Bun.Transpiler({
+    loader: "ts",
+  });
+  const code = await Bun.file("./file/c.ts").text();
+  const result = transpile.transformSync(code);
+  const writer = Bun.file("./file/c.js").writer();
+  writer.write(result);
+  writer.flush();
+
+  const proc = bun.spawn(["bun", "./file/c.js"]);
+  console.log(await new Response(proc.stdout).text());
+};
+
 // runAFile();
 // watchBFile();
 // runCreateSQLiteWithFile();
 // runSQLiteInMemory();
 // runSQLiteInMemory2()
 // runInsertJSONToSQLiteWithFile();
-runSQLiteJsonColumnWithFile();
+// runSQLiteJsonColumnWithFile();
+runRunCodeStringFromFile();
